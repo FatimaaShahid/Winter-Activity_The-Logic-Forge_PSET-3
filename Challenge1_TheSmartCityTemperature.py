@@ -1,61 +1,30 @@
-def solve():
-    import sys
-    input = sys.stdin.readline
 
-    N, K, Q = map(int, input().split())
-    temp = list(map(int, input().split()))
+N, K, Q = map(int, input().split())
+temps = list(map(int, input().split()))
 
+alert = [0] * N
 
-    next_warmer = [-1] * N
-    stack = []
-    for i in range(N):
-        while stack and temp[i] >= temp[stack[-1]] + K:
-            idx = stack.pop()
-            next_warmer[idx] = i
-        stack.append(i)
+for i in range(N):
+    for j in range(i + 1, N):
+        if temps[j] >= temps[i] + K or temps[j] <= temps[i] - K:
+            alert[i] = j
+            break
+for _ in range(Q):
+    parts = input().split()
 
-    next_colder = [-1] * N
-    stack = []
-    for i in range(N):
-        while stack and temp[i] <= temp[stack[-1]] - K:
-            idx = stack.pop()
-            next_colder[idx] = i
-        stack.append(i)
-
-    alert = [0] * N
-    for i in range(N):
-        w = next_warmer[i]
-        c = next_colder[i]
-
-        if w != -1 and c != -1:
-            alert[i] = min(w, c)
-        elif w != -1:
-            alert[i] = w
-        elif c != -1:
-            alert[i] = c
+    if parts[0] == "NEXT":
+        X = int(parts[1])
+        if alert[X] == 0:
+            print("No Alert")
         else:
-            alert[i] = 0
+            print(alert[X])
 
+    elif parts[0] == "COUNT":
+        L = int(parts[1])
+        R = int(parts[2])
 
-    prefix = [0] * N
-    prefix[0] = 1 if alert[0] != 0 else 0
-    for i in range(1, N):
-        prefix[i] = prefix[i - 1] + (1 if alert[i] != 0 else 0)
-
-    
-    for _ in range(Q):
-        query = input().split()
-
-        if query[0] == "NEXT":
-            x = int(query[1])
-            if alert[x] == 0:
-                print("No Alert")
-            else:
-                print(alert[x])
-
-        else:  
-            L, R = map(int, query[1:])
-            if L == 0:
-                print(prefix[R])
-            else:
-                print(prefix[R] - prefix[L - 1])
+        count = 0
+        for i in range(L, R + 1):
+            if alert[i] != 0:
+                count += 1
+        print(count)
